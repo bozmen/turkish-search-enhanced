@@ -1,0 +1,38 @@
+version: '3.1'
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.5.4
+    ports:
+      - '9200:9200'
+    environment:
+      discovery.type: 'single-node'
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    networks:
+      - workshop_net
+  cerebro:
+    image: yannart/cerebro:0.8.1
+    ports:
+      - '9000:9000'
+    networks:
+      - workshop_net
+  turkish-search-enhanced:
+    build:
+      context: ./
+      dockerfile: ./dockerfile
+    volumes:
+      - ./flaskr/model:/app/flaskr/model
+      - ./flaskr:/app/flaskr
+      - ./dataset:/app/dataset
+    command: flask run --host=0.0.0.0
+    ports: 
+      - '5000:5000'
+    image: turkish-search-enhanced/v1.0
+
+networks:
+  workshop_net:
+    driver: bridge
+volumes:
+  esdata:
+    driver: local
